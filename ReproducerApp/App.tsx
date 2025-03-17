@@ -54,6 +54,9 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   );
 }
 
+const controller = new AbortController();
+const signal = controller.signal;
+
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -71,6 +74,18 @@ function App(): React.JSX.Element {
    * https://github.com/react-native-community/discussions-and-proposals/discussions/827
    */
   const safePadding = '5%';
+
+  React.useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/posts', { signal })
+      .then(response => response.json())
+      .then(json => console.log(json))
+      .catch(er => console.log('err', er))
+      setTimeout(() => {
+        if (controller) {
+          controller.abort();
+        }
+      }, 100); // Abort after 100 ms
+  }, [])
 
   return (
     <View style={backgroundStyle}>
